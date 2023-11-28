@@ -201,7 +201,6 @@ pub fn display(sub_matches: &ArgMatches<'_>) {
     };
     let display_branch = Cyan.paint(branch.unwrap_or_default());
 
-    println!();
     println!("{} {}", display_path, display_branch);
 }
 

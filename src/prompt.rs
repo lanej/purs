@@ -15,10 +15,11 @@ pub fn display(sub_matches: &ArgMatches<'_>) {
         _ => INSERT_SYMBOL,
     };
 
-    let shell_color = match (symbol, last_return_code) {
-        (COMMAND_SYMBOL, _) => 3,
-        (_, NO_ERROR) => 5,
-        _ => 9,
+    let prompt = match (symbol, last_return_code) {
+        (COMMAND_SYMBOL, NO_ERROR) => format!("%F{{3}}{}%f", COMMAND_SYMBOL),
+        (COMMAND_SYMBOL, err) => format!("%F{{9}}{}%f %F{{3}}{}%f", err, COMMAND_SYMBOL),
+        (_, NO_ERROR) => format!("%F{{5}}{}%f", INSERT_SYMBOL),
+        (_, err) => format!("%F{{9}}{} {}%f", err, INSERT_SYMBOL),
     };
 
     let venv = match venv_name.len() {
@@ -26,7 +27,7 @@ pub fn display(sub_matches: &ArgMatches<'_>) {
         _ => format!("%F{{11}}|{}|%f ", venv_name),
     };
 
-    print!("{}%F{{{}}}{}%f ", venv, shell_color, symbol);
+    print!("{}%F{}%f ", venv, prompt);
 }
 
 pub fn cli_arguments<'a>() -> App<'a, 'a> {
