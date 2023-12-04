@@ -204,7 +204,7 @@ pub fn display(sub_matches: &ArgMatches<'_>) {
         sub_matches.value_of("ssh-tty"),
         sub_matches.value_of("host"),
     ) {
-        (Some(tty), Some(host)) if tty.is_empty() => Yellow.paint(format!("{} ", host)),
+        (Some(tty), Some(host)) if !tty.is_empty() => Yellow.paint(format!("{} ", host)),
         _ => Yellow.paint(""),
     };
 
