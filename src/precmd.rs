@@ -1,4 +1,4 @@
-use ansi_term::Colour::{Blue, Cyan, Green, Purple, Red};
+use ansi_term::Colour::{Blue, Cyan, Green, Purple, Red, Yellow};
 use ansi_term::{ANSIGenericString, ANSIStrings};
 use clap::{App, Arg, ArgMatches, SubCommand};
 use git2::{self, Repository, StatusOptions};
@@ -200,14 +200,38 @@ pub fn display(sub_matches: &ArgMatches<'_>) {
         Err(_e) => None,
     };
     let display_branch = Cyan.paint(branch.unwrap_or_default());
+    let host = match (
+        sub_matches.value_of("ssh-tty"),
+        sub_matches.value_of("host"),
+    ) {
+        (Some(tty), Some(host)) if tty.is_empty() => Yellow.paint(format!("{} ", host)),
+        _ => Yellow.paint(""),
+    };
 
-    println!("{} {}", display_path, display_branch);
+    println!("{}{} {}", host, display_path, display_branch);
 }
 
 pub fn cli_arguments<'a>() -> App<'a, 'a> {
-    SubCommand::with_name("precmd").arg(
-        Arg::with_name("git-detailed")
-            .long("git-detailed")
-            .help("Prints detailed git status"),
-    )
+    SubCommand::with_name("precmd")
+        .arg(
+            Arg::with_name("git-detailed")
+                .long("git-detailed")
+                .help("Prints detailed git status"),
+        )
+        .arg(
+            Arg::with_name("ssh-tty")
+                .long("ssh-tty")
+                .short("s")
+                .takes_value(true)
+                .empty_values(true)
+                .help("SSH_TTY if set"),
+        )
+        .arg(
+            Arg::with_name("host")
+                .long("host")
+                .short("h")
+                .takes_value(true)
+                .empty_values(true)
+                .help("HOST if set"),
+        )
 }
