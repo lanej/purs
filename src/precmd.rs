@@ -204,7 +204,9 @@ pub fn display(sub_matches: &ArgMatches<'_>) {
         sub_matches.value_of("ssh-tty"),
         sub_matches.value_of("host"),
     ) {
-        (Some(tty), Some(host)) if !tty.is_empty() => Yellow.paint(format!("{} ", host)),
+        (Some(tty), Some(host)) if !tty.is_empty() && !host.is_empty() => {
+            Yellow.paint(format!("{} ", host))
+        }
         _ => Yellow.paint(""),
     };
 
@@ -224,6 +226,8 @@ pub fn cli_arguments<'a>() -> App<'a, 'a> {
                 .short("s")
                 .takes_value(true)
                 .empty_values(true)
+                .required(false)
+                .env("SSH_TTY")
                 .help("SSH_TTY if set"),
         )
         .arg(
@@ -232,6 +236,8 @@ pub fn cli_arguments<'a>() -> App<'a, 'a> {
                 .short("h")
                 .takes_value(true)
                 .empty_values(true)
+                .required(false)
+                .env("HOST")
                 .help("HOST if set"),
         )
 }
