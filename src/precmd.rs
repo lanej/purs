@@ -202,7 +202,7 @@ pub fn display(precmd: Precmd) {
     };
 
     println!(
-        "{}{} {}",
+        "{}{}{}",
         Yellow.paint(host),
         display_path,
         Cyan.paint(branch.unwrap_or_default())
