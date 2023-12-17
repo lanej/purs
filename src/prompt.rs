@@ -6,10 +6,6 @@ const COMMAND_KEYMAP: &str = "vicmd";
 const NO_ERROR: i16 = 0;
 
 pub fn display(cmd: Prompt) {
-    // let last_return_code = sub_matches.get_one::<u8>("last_return_code").unwrap_or(&0);
-    // let keymap = sub_matches.get_one::<&str>("keymap").unwrap_or(&"US");
-    // let venv_name = sub_matches.get_one::<&str>("venv").unwrap_or(&"");
-
     let symbol = match cmd.keymap.as_str() {
         COMMAND_KEYMAP => COMMAND_SYMBOL,
         _ => INSERT_SYMBOL,
