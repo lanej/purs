@@ -2,15 +2,12 @@ use ansi_term::Colour::{Blue, Cyan, Green, Purple, Red, Yellow};
 use ansi_term::{ANSIGenericString, ANSIStrings};
 use clap::{App, Arg, ArgMatches, SubCommand};
 use git2::{self, Repository, StatusOptions};
-use regex::Regex;
 use std::env;
 use tico::tico;
 
 fn shorten_path(cwd: &str) -> String {
     let friendly_path = match dirs::home_dir() {
-        Some(path) => Regex::new(path.to_str().unwrap())
-            .unwrap()
-            .replace(cwd, "~"),
+        Some(path) => cwd.replacen(path.to_str().unwrap(), "~", 1),
         _ => return String::from(""),
     };
 
