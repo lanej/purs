@@ -1,19 +1,24 @@
-#![deny(rust_2018_idioms)]
-use clap::{App, AppSettings};
+use clap::{Parser, Subcommand};
 
 mod precmd;
 mod prompt;
 
-fn main() {
-    let matches = App::new("Purs")
-        .setting(AppSettings::SubcommandRequired)
-        .subcommand(precmd::cli_arguments())
-        .subcommand(prompt::cli_arguments())
-        .get_matches();
+#[derive(Parser, Debug)]
+#[command(name = "purs", author, version, about, long_about = None, propagate_version = true)]
+pub struct Purs {
+    #[command(subcommand)]
+    command: Command,
+}
 
-    match matches.subcommand() {
-        ("precmd", Some(sub_matches)) => precmd::display(sub_matches),
-        ("prompt", Some(sub_matches)) => prompt::display(sub_matches),
-        _ => (),
+#[derive(Debug, Subcommand)]
+enum Command {
+    Precmd(precmd::Precmd),
+    Prompt(prompt::Prompt),
+}
+
+fn main() {
+    match Purs::parse().command {
+        Command::Precmd(precmd) => precmd::display(precmd),
+        Command::Prompt(prompt) => prompt::display(prompt),
     }
 }

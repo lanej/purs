@@ -1,6 +1,6 @@
 use ansi_term::Colour::{Blue, Cyan, Green, Purple, Red, Yellow};
 use ansi_term::{ANSIGenericString, ANSIStrings};
-use clap::{App, Arg, ArgMatches, SubCommand};
+use clap::Parser;
 use git2::{self, Repository, StatusOptions};
 use std::env;
 use tico::tico;
@@ -188,53 +188,34 @@ fn get_action(r: &Repository) -> Option<String> {
     None
 }
 
-pub fn display(sub_matches: &ArgMatches<'_>) {
+pub fn display(precmd: Precmd) {
     let my_path = env::current_dir().unwrap();
     let display_path = Blue.paint(shorten_path(my_path.to_str().unwrap()));
 
     let branch = match Repository::discover(my_path) {
-        Ok(repo) => repo_status(&repo, sub_matches.is_present("git-detailed")),
+        Ok(repo) => repo_status(&repo, precmd.git_detailed),
         Err(_e) => None,
     };
-    let display_branch = Cyan.paint(branch.unwrap_or_default());
-    let host = match (
-        sub_matches.value_of("ssh-tty"),
-        sub_matches.value_of("host"),
-    ) {
-        (Some(tty), Some(host)) if !tty.is_empty() && !host.is_empty() => {
-            Yellow.paint(format!("{} ", host))
-        }
-        _ => Yellow.paint(""),
+    let host = match (precmd.ssh_tty, precmd.host) {
+        (Some(tty), Some(host)) if !tty.is_empty() && !host.is_empty() => host,
+        _ => "".to_owned(),
     };
 
-    println!("{}{} {}", host, display_path, display_branch);
+    println!(
+        "{}{} {}",
+        Yellow.paint(host),
+        display_path,
+        Cyan.paint(branch.unwrap_or_default())
+    );
 }
 
-pub fn cli_arguments<'a>() -> App<'a, 'a> {
-    SubCommand::with_name("precmd")
-        .arg(
-            Arg::with_name("git-detailed")
-                .long("git-detailed")
-                .help("Prints detailed git status"),
-        )
-        .arg(
-            Arg::with_name("ssh-tty")
-                .long("ssh-tty")
-                .short("s")
-                .takes_value(true)
-                .empty_values(true)
-                .required(false)
-                .env("SSH_TTY")
-                .help("SSH_TTY if set"),
-        )
-        .arg(
-            Arg::with_name("host")
-                .long("host")
-                .short("h")
-                .takes_value(true)
-                .empty_values(true)
-                .required(false)
-                .env("HOST")
-                .help("HOST if set"),
-        )
+#[derive(Parser, Debug)]
+#[command(name = "precmd", author, version, about, long_about = None)]
+pub struct Precmd {
+    #[arg(short = 's', long = "ssh-tty", value_name = "SSH_TTY", env = "SSH_TTY")]
+    ssh_tty: Option<String>,
+    #[arg(short = 'h', long = "host", value_name = "HOST", env = "HOST")]
+    host: Option<String>,
+    #[arg(long = "git-detailed", default_value = "true")]
+    git_detailed: bool,
 }
