@@ -197,7 +197,7 @@ pub fn display(precmd: Precmd) {
         Err(_e) => None,
     };
     let host = match (precmd.ssh_tty, precmd.host) {
-        (Some(tty), Some(host)) if !tty.is_empty() && !host.is_empty() => host,
+        (Some(tty), Some(host)) if !tty.is_empty() && !host.is_empty() => format!("{} ", host),
         _ => "".to_owned(),
     };
 
